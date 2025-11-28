@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, reactive, watch } from 'vue'
+import { onMounted, ref, reactive, watch, provide } from 'vue'
 import axios from 'axios'
 
 import PageHeader from './components/PageHeader.vue'
@@ -9,6 +9,7 @@ import CardsList from './components/CardsList.vue'
 
 //константы для хранения реактивных данных о карточках товаров и значениях фильтров
 const items = ref([])
+
 //по умолчанию сортировка по имени
 const filters = reactive({
   sortBy: 'name',
@@ -32,14 +33,74 @@ const fetchItems = async () => {
     const { data } = await axios.get('https://e2d1386770118d32.mokky.dev/items', {
       params,
     })
-    items.value = data
+
+    //дополняем объект элементов полями
+    items.value = data.map((obj) => ({
+      ...obj,
+      isAdded: false,
+      favoriteId: null,
+      isFavorite: false,
+    }))
   } catch (error) {
     console.error('Failed to fetch data:', error)
   }
 }
 
-//вызов функции получения данных с бека при маунте и изменении объекта filters
-onMounted(fetchItems)
+//запрос данных об избранном
+const fetchFavorites = async () => {
+  try {
+    //запрос через аxios, data переименовывается в favorites
+    const { data: favorites } = await axios.get('https://e2d1386770118d32.mokky.dev/favorites')
+
+    //разбираем ранее полученные items и сопоставляем со списком избранного
+    items.value = items.value.map((item) => {
+      const favorite = favorites.find((favorite) => favorite.parentId === item.id)
+
+      //если элемента нет в избранном возвращаем элемент
+      if (!favorite) {
+        return item
+      }
+
+      //в противном случае возвращаем элемент с обновленным полем isFavorite и дописываем id избранного элемента
+      return {
+        ...item,
+        isFavorite: true,
+        favoriteId: favorite.id,
+      }
+    })
+  } catch (error) {
+    console.error('Failed to fetch data:', error)
+  }
+}
+
+const addToFavorite = async (item) => {
+  if (!item.isFavorite) {
+    try {
+      const obj = {
+        parentId: item.id,
+      }
+
+      const { data } = await axios.post('https://e2d1386770118d32.mokky.dev/favorites', obj)
+
+      item.isFavorite = true
+      item.favoriteId = data.id
+    } catch (err) {
+      console.log(err)
+    }
+  } else {
+    await axios.delete(`https://e2d1386770118d32.mokky.dev/favorites/${item.favoriteId}`)
+    item.isFavorite = false
+    item.favoriteId = null
+  }
+}
+
+//вызов функции получения данных с бека при маунте
+onMounted(async () => {
+  await fetchItems()
+  await fetchFavorites()
+})
+
+//отслеживание изменений объекта filters
 watch(filters, fetchItems)
 
 //функции изменения фильтров
@@ -92,7 +153,7 @@ const onChangeSearchInput = (event) => {
         </div>
       </div>
 
-      <CardsList :items="items" />
+      <CardsList :items="items" @addToFavorite="addToFavorite" />
     </div>
   </div>
 </template>
