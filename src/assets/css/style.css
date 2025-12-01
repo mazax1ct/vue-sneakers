@@ -2,4 +2,9 @@
 
 body {
   background-color: #E7F6FF;
+  scrollbar-gutter: stable;
+}
+
+.is-overflow {
+  overflow: hidden;
 }

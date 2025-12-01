@@ -1,4 +1,10 @@
-<script></script>
+<script setup>
+const emit = defineEmits(['openDrawer'])
+
+defineProps({
+  cartPrice: Number
+})
+</script>
 
 <template>
   <header class="header flex items-center justify-between p-16 border-b border-slate-200">
@@ -15,13 +21,13 @@
 
     <nav class="header__menu">
       <ul class="header__menu-list flex gap-10">
-        <li>
+        <li @click="emit('openDrawer')">
           <a
             class="header__menu-link flex items-center gap-2 font-medium text-gray-500 hover:text-black"
             href="#"
           >
             <img src="/cart.svg" alt="Корзина" />
-            <span>0 руб.</span>
+            <span>{{ cartPrice }} руб.</span>
           </a>
         </li>
         <li>

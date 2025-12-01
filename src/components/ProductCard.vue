@@ -16,11 +16,12 @@ defineProps({
     class="card flex flex-col relative bg-white border border-slate-200 rounded-3xl p-8 transition hover:-translate-y-2 hover:shadow-xl"
   >
     <button
+      @click="onClickFavorite"
       class="card__favorite absolute top-8 left-8 cursor-pointer"
       type="button"
       title="Добавить в избранное"
     >
-      <img @click="onClickFavorite" :src="!isFavorite ? '/like-1.svg' : '/like-2.svg'" alt="Like" />
+      <img :src="!isFavorite ? '/like-1.svg' : '/like-2.svg'" alt="Like" />
     </button>
 
     <div class="card__image mb-3">
