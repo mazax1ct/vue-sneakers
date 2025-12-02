@@ -36,8 +36,8 @@ defineProps({
         <span class="card__price block font-bold text-xl">{{ price }} руб.</span>
       </p>
 
-      <button class="card__add-cart cursor-pointer" type="button" title="В корзину">
-        <img @click="onClickAdd" :src="!isAdded ? '/plus.svg' : '/checked.svg'" alt="В корзину" />
+      <button @click="onClickAdd" class="card__add-cart cursor-pointer" type="button" title="В корзину">
+        <img  :src="!isAdded ? '/plus.svg' : '/checked.svg'" alt="В корзину" />
       </button>
     </div>
   </div>

@@ -25,7 +25,10 @@ const cartItems = ref([])
 const cartPrice = computed(() => cartItems.value.reduce((acc, item) => acc + item.price, 0))
 
 //вычисляемая реактивная переменная для хранения налога для корзины
-const vatPrice = computed(() => (cartPrice.value * 0.05).toFixed(2))
+const vatPrice = computed(() => parseFloat((cartPrice.value * 0.05).toFixed(2)))
+
+//переменная флаг о процессе создания заказа
+const isCreatingOrder = ref(false)
 
 //функция получения данных с бека
 const fetchItems = async () => {
@@ -110,8 +113,18 @@ const addToFavorite = async (item) => {
 
 //вызов функции получения данных с бека при маунте
 onMounted(async () => {
+  //проверка наличия записи в localStorage и если запись есть то парсится строка значения этой записи и записывается в value переменной списка товаров в корзине, в противном случае там будет пустой массив
+  const localCart = localStorage.getItem('cart')
+  cartItems.value = localCart ? JSON.parse(localCart) : []
+
   await fetchItems()
   await fetchFavorites()
+
+  //ТОЛЬКО ПОСЛЕ получения данных о товарах с бека, сравниваем id товаров в коризне с id товаров с бека и устанавливаем флаг isAdded
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: cartItems.value.some((cartItem) => cartItem.id === item.id),
+  }))
 })
 
 //отслеживание изменений объекта filters
@@ -129,14 +142,14 @@ const onChangeSearchInput = (event) => {
 //функция закрытия блока корзины
 const closeDrawer = () => {
   drawerOpen.value = false
-  const html = document.querySelector('body')
+  const html = document.querySelector('html')
   html.classList.remove('is-overflow')
 }
 
 //функция открытия блока корзины
 const openDrawer = () => {
   drawerOpen.value = true
-  const html = document.querySelector('body')
+  const html = document.querySelector('html')
   html.classList.add('is-overflow')
 }
 
@@ -152,6 +165,26 @@ const removeFromCart = (item) => {
   item.isAdded = false
 }
 
+//функция создания заказа
+const createOrder = async () => {
+  try {
+    isCreatingOrder.value = true
+
+    const { data } = await axios.post(`https://e2d1386770118d32.mokky.dev/orders/`, {
+      items: cartItems.value,
+      price: cartPrice.value,
+    })
+
+    cartItems.value = []
+
+    return data
+  } catch (err) {
+    console.log(err)
+  } finally {
+    isCreatingOrder.value = false
+  }
+}
+
 //функция добавления/удаления из корзины
 const onClickPlusButton = (item) => {
   if (!item.isAdded) {
@@ -160,6 +193,25 @@ const onClickPlusButton = (item) => {
     removeFromCart(item)
   }
 }
+
+//вотчер за очисткой корзины
+watch(cartItems, () => {
+  items.value = items.value.map((item) => ({
+    ...item,
+    isAdded: false,
+  }))
+})
+
+//глубокое слежение за корзиной и запись/удаление в localStorage
+watch(
+  cartItems,
+  () => {
+    localStorage.setItem('cart', JSON.stringify(cartItems.value))
+  },
+  {
+    deep: true,
+  },
+)
 
 //прокидываение функции закрытия корзины из родительского компонента в дочерний через provide/inject
 provide('cart', {
@@ -172,7 +224,13 @@ provide('cart', {
 
 <template>
   <!--при установленном флаге drawerOpen блок корзины будет показан-->
-  <Drawer v-if="drawerOpen" :cartPrice="cartPrice" :vatPrice="vatPrice" />
+  <Drawer
+    v-if="drawerOpen"
+    :cartPrice="cartPrice"
+    :vatPrice="vatPrice"
+    @createOrder="createOrder"
+    :isCreatingOrder="isCreatingOrder"
+  />
 
   <div class="bg-white w-4/5 m-auto mt-10 mb-10 rounded-xl shadow-xl">
     <!--прокидываем функцию открытия корзины через emit-->

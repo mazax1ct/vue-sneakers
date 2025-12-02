@@ -1,8 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+html {
+  scrollbar-gutter: stable;
+}
 
 body {
-  background-color: #E7F6FF;
-  scrollbar-gutter: stable;
+  background-color: #e7f6ff;
 }
 
 .is-overflow {

@@ -2,7 +2,7 @@
 const emit = defineEmits(['openDrawer'])
 
 defineProps({
-  cartPrice: Number
+  cartPrice: Number,
 })
 </script>
 
@@ -14,21 +14,22 @@ defineProps({
       </a>
 
       <div>
-        <p class="header__logo-title text-xl font-bold uppercase">REACT SNEAKERS</p>
+        <p class="header__logo-title text-xl font-bold uppercase">VUE SNEAKERS</p>
         <p class="header__logo-text text-slate-500">Магазин лучших кроссовок</p>
       </div>
     </div>
 
     <nav class="header__menu">
       <ul class="header__menu-list flex gap-10">
-        <li @click="emit('openDrawer')">
-          <a
-            class="header__menu-link flex items-center gap-2 font-medium text-gray-500 hover:text-black"
-            href="#"
+        <li>
+          <button
+            @click="emit('openDrawer')"
+            class="header__menu-link flex items-center gap-2 font-medium text-gray-500 hover:text-black cursor-pointer"
+            type="button"
           >
             <img src="/cart.svg" alt="Корзина" />
-            <span>{{ cartPrice }} руб.</span>
-          </a>
+            <b>{{ cartPrice }} руб.</b>
+          </button>
         </li>
         <li>
           <a
