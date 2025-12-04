@@ -1,8 +1,9 @@
 <script setup>
+import { inject } from 'vue'
+
 import CartList from './CartList.vue'
 import DrawerHead from './DrawerHead.vue'
-import cartInfoBlock from './cartInfoBlock.vue'
-import { inject } from 'vue'
+import CartInfoBlock from './CartInfoBlock.vue'
 
 //получаем прокинутую функцию closeDrawer из App.vue
 const { closeDrawer } = inject('cart')

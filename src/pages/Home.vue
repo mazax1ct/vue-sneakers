@@ -1,7 +1,8 @@
 <script setup>
 import axios from 'axios'
-import CardsList from '@/components/CardsList.vue'
 import { inject, reactive, watch, ref, onMounted } from 'vue'
+
+import CardsList from '@/components/CardsList.vue'
 
 const { cartItems, addToCart, removeFromCart } = inject('cart')
 

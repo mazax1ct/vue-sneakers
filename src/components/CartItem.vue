@@ -21,7 +21,7 @@ defineProps({
         <p class="cart-item__price font-bold">{{ price }} руб.</p>
       </div>
 
-      <button @click="$emit('onClickRemove')"
+      <button @click="emit('onClickRemove')"
         class="cart-item__delete min-w-8 w-8 h-8 cursor-pointer"
         type="button"
         title="Удалить"

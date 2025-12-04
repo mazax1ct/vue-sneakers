@@ -3,6 +3,7 @@ import { inject } from 'vue'
 
 //получаем прокинутую функцию closeDrawer из App.vue
 const { closeDrawer } = inject('cart')
+
 defineProps({
   imageUrl: String,
   title: String,
